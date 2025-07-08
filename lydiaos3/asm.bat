@@ -1,0 +1,1 @@
+..\z_tools\nask.exe lydiaos.nas lydiaos.img

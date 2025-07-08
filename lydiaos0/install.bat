@@ -1,0 +1,1 @@
+.. ￥/z_tools/imgtol.com w a:lydiaos.img
