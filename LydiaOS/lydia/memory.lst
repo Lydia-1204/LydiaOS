@@ -1,0 +1,688 @@
+     1 00000000                                 [FORMAT "WCOFF"]
+     2 00000000                                 [INSTRSET "i486p"]
+     3 00000000                                 [OPTIMIZE 1]
+     4 00000000                                 [OPTION 1]
+     5 00000000                                 [BITS 32]
+     6 00000000                                 	EXTERN	_io_load_eflags
+     7 00000000                                 	EXTERN	_io_store_eflags
+     8 00000000                                 	EXTERN	_memtest_sub
+     9 00000000                                 	EXTERN	_load_cr0
+    10 00000000                                 	EXTERN	_store_cr0
+    11 00000000                                 [FILE "memory.c"]
+    12 00000000                                 	GLOBAL	_memman
+    13                                          [SECTION .data]
+    14 00000000                                 	ALIGNB	4
+    15 00000000                                 _memman:
+    16 00000000 003C0000                        	DD	3932160
+    17                                          [SECTION .text]
+    18 00000000                                 	GLOBAL	_memtest
+    19 00000000                                 _memtest:
+    20 00000000 55                              	PUSH	EBP
+    21 00000001 89 E5                           	MOV	EBP,ESP
+    22 00000003 56                              	PUSH	ESI
+    23 00000004 53                              	PUSH	EBX
+    24 00000005 31 F6                           	XOR	ESI,ESI
+    25 00000007 E8 [00000000]                   	CALL	_io_load_eflags
+    26 0000000C 0D 00040000                     	OR	EAX,262144
+    27 00000011 50                              	PUSH	EAX
+    28 00000012 E8 [00000000]                   	CALL	_io_store_eflags
+    29 00000017 E8 [00000000]                   	CALL	_io_load_eflags
+    30 0000001C 5A                              	POP	EDX
+    31 0000001D A9 00040000                     	TEST	EAX,262144
+    32 00000022 74 05                           	JE	L2
+    33 00000024 BE 00000001                     	MOV	ESI,1
+    34 00000029                                 L2:
+    35 00000029 25 FFFBFFFF                     	AND	EAX,-262145
+    36 0000002E 50                              	PUSH	EAX
+    37 0000002F E8 [00000000]                   	CALL	_io_store_eflags
+    38 00000034 58                              	POP	EAX
+    39 00000035 89 F0                           	MOV	EAX,ESI
+    40 00000037 84 C0                           	TEST	AL,AL
+    41 00000039 75 31                           	JNE	L5
+    42 0000003B                                 L3:
+    43 0000003B FF 75 0C                        	PUSH	DWORD [12+EBP]
+    44 0000003E FF 75 08                        	PUSH	DWORD [8+EBP]
+    45 00000041 E8 [00000000]                   	CALL	_memtest_sub
+    46 00000046 5A                              	POP	EDX
+    47 00000047 89 C3                           	MOV	EBX,EAX
+    48 00000049 59                              	POP	ECX
+    49 0000004A 89 F0                           	MOV	EAX,ESI
+    50 0000004C 84 C0                           	TEST	AL,AL
+    51 0000004E 75 09                           	JNE	L6
+    52 00000050                                 L4:
+    53 00000050 8D 65 F8                        	LEA	ESP,DWORD [-8+EBP]
+    54 00000053 89 D8                           	MOV	EAX,EBX
+    55 00000055 5B                              	POP	EBX
+    56 00000056 5E                              	POP	ESI
+    57 00000057 5D                              	POP	EBP
+    58 00000058 C3                              	RET
+    59 00000059                                 L6:
+    60 00000059 E8 [00000000]                   	CALL	_load_cr0
+    61 0000005E 25 9FFFFFFF                     	AND	EAX,-1610612737
+    62 00000063 50                              	PUSH	EAX
+    63 00000064 E8 [00000000]                   	CALL	_store_cr0
+    64 00000069 58                              	POP	EAX
+    65 0000006A EB E4                           	JMP	L4
+    66 0000006C                                 L5:
+    67 0000006C E8 [00000000]                   	CALL	_load_cr0
+    68 00000071 0D 60000000                     	OR	EAX,1610612736
+    69 00000076 50                              	PUSH	EAX
+    70 00000077 E8 [00000000]                   	CALL	_store_cr0
+    71 0000007C 5B                              	POP	EBX
+    72 0000007D EB BC                           	JMP	L3
+    73 0000007F                                 	GLOBAL	_memman_init
+    74 0000007F                                 _memman_init:
+    75 0000007F 55                              	PUSH	EBP
+    76 00000080 31 C0                           	XOR	EAX,EAX
+    77 00000082 89 E5                           	MOV	EBP,ESP
+    78 00000084 8B 55 08                        	MOV	EDX,DWORD [8+EBP]
+    79 00000087 C7 02 00000000                  	MOV	DWORD [EDX],0
+    80 0000008D C7 42 04 00000000               	MOV	DWORD [4+EDX],0
+    81 00000094 C7 42 08 00000000               	MOV	DWORD [8+EDX],0
+    82 0000009B C7 42 0C 00000000               	MOV	DWORD [12+EDX],0
+    83 000000A2 C7 82 00007FE0 00000000         	MOV	DWORD [32736+EDX],0
+    84 000000AC C7 82 00007FE4 00000000         	MOV	DWORD [32740+EDX],0
+    85 000000B6 C7 82 00007FE8 00000000         	MOV	DWORD [32744+EDX],0
+    86 000000C0 C7 82 00007FEC 00000000         	MOV	DWORD [32748+EDX],0
+    87 000000CA                                 L12:
+    88 000000CA C7 84 82 00007FF0 00000000      	MOV	DWORD [32752+EDX+EAX*4],0
+    89 000000D5 40                              	INC	EAX
+    90 000000D6 83 F8 0A                        	CMP	EAX,10
+    91 000000D9 7E EF                           	JLE	L12
+    92 000000DB 31 C0                           	XOR	EAX,EAX
+    93 000000DD                                 L17:
+    94 000000DD C7 84 82 0000801C 00000000      	MOV	DWORD [32796+EDX+EAX*4],0
+    95 000000E8 40                              	INC	EAX
+    96 000000E9 3D 00008000                     	CMP	EAX,32768
+    97 000000EE 7E ED                           	JLE	L17
+    98 000000F0 C7 82 00028020 00000000         	MOV	DWORD [163872+EDX],0
+    99 000000FA C7 82 00028024 80000000         	MOV	DWORD [163876+EDX],-2147483648
+   100 00000104 C7 82 00028028 00000001         	MOV	DWORD [163880+EDX],1
+   101 0000010E 5D                              	POP	EBP
+   102 0000010F C3                              	RET
+   103 00000110                                 	GLOBAL	_memman_set_strategy
+   104 00000110                                 _memman_set_strategy:
+   105 00000110 55                              	PUSH	EBP
+   106 00000111 89 E5                           	MOV	EBP,ESP
+   107 00000113 8B 45 08                        	MOV	EAX,DWORD [8+EBP]
+   108 00000116 8B 55 0C                        	MOV	EDX,DWORD [12+EBP]
+   109 00000119 89 90 00028028                  	MOV	DWORD [163880+EAX],EDX
+   110 0000011F 5D                              	POP	EBP
+   111 00000120 C3                              	RET
+   112 00000121                                 	GLOBAL	_buddy_get_order
+   113 00000121                                 _buddy_get_order:
+   114 00000121 55                              	PUSH	EBP
+   115 00000122 31 C9                           	XOR	ECX,ECX
+   116 00000124 89 E5                           	MOV	EBP,ESP
+   117 00000126 8B 55 08                        	MOV	EDX,DWORD [8+EBP]
+   118 00000129 81 C2 00000FFF                  	ADD	EDX,4095
+   119 0000012F C1 EA 0C                        	SHR	EDX,12
+   120 00000132 83 FA 01                        	CMP	EDX,1
+   121 00000135 76 0C                           	JBE	L29
+   122 00000137                                 L27:
+   123 00000137 41                              	INC	ECX
+   124 00000138 B8 00000001                     	MOV	EAX,1
+   125 0000013D D3 E0                           	SAL	EAX,CL
+   126 0000013F 39 D0                           	CMP	EAX,EDX
+   127 00000141 72 F4                           	JB	L27
+   128 00000143                                 L29:
+   129 00000143 89 C8                           	MOV	EAX,ECX
+   130 00000145 5D                              	POP	EBP
+   131 00000146 C3                              	RET
+   132 00000147                                 	GLOBAL	_buddy_alloc
+   133 00000147                                 _buddy_alloc:
+   134 00000147 55                              	PUSH	EBP
+   135 00000148 31 C0                           	XOR	EAX,EAX
+   136 0000014A 89 E5                           	MOV	EBP,ESP
+   137 0000014C 57                              	PUSH	EDI
+   138 0000014D 56                              	PUSH	ESI
+   139 0000014E 8B 75 0C                        	MOV	ESI,DWORD [12+EBP]
+   140 00000151 53                              	PUSH	EBX
+   141 00000152 8B 7D 08                        	MOV	EDI,DWORD [8+EBP]
+   142 00000155 83 FE 0A                        	CMP	ESI,10
+   143 00000158 7F 15                           	JG	L30
+   144 0000015A 89 F1                           	MOV	ECX,ESI
+   145 0000015C                                 L40:
+   146 0000015C 8B 9C 8F 00007FF0               	MOV	EBX,DWORD [32752+EDI+ECX*4]
+   147 00000163 85 DB                           	TEST	EBX,EBX
+   148 00000165 75 0D                           	JNE	L45
+   149 00000167 41                              	INC	ECX
+   150 00000168 83 F9 0A                        	CMP	ECX,10
+   151 0000016B 7E EF                           	JLE	L40
+   152 0000016D 31 C0                           	XOR	EAX,EAX
+   153 0000016F                                 L30:
+   154 0000016F 5B                              	POP	EBX
+   155 00000170 5E                              	POP	ESI
+   156 00000171 5F                              	POP	EDI
+   157 00000172 5D                              	POP	EBP
+   158 00000173 C3                              	RET
+   159 00000174                                 L45:
+   160 00000174 8B 43 08                        	MOV	EAX,DWORD [8+EBX]
+   161 00000177 39 F1                           	CMP	ECX,ESI
+   162 00000179 89 84 8F 00007FF0               	MOV	DWORD [32752+EDI+ECX*4],EAX
+   163 00000180 7E 24                           	JLE	L44
+   164 00000182                                 L39:
+   165 00000182 49                              	DEC	ECX
+   166 00000183 B8 00001000                     	MOV	EAX,4096
+   167 00000188 D3 E0                           	SAL	EAX,CL
+   168 0000018A 03 03                           	ADD	EAX,DWORD [EBX]
+   169 0000018C 8B 94 8F 00007FF0               	MOV	EDX,DWORD [32752+EDI+ECX*4]
+   170 00000193 39 F1                           	CMP	ECX,ESI
+   171 00000195 89 50 08                        	MOV	DWORD [8+EAX],EDX
+   172 00000198 89 00                           	MOV	DWORD [EAX],EAX
+   173 0000019A 89 48 04                        	MOV	DWORD [4+EAX],ECX
+   174 0000019D 89 84 8F 00007FF0               	MOV	DWORD [32752+EDI+ECX*4],EAX
+   175 000001A4 7F DC                           	JG	L39
+   176 000001A6                                 L44:
+   177 000001A6 8B 03                           	MOV	EAX,DWORD [EBX]
+   178 000001A8 EB C5                           	JMP	L30
+   179 000001AA                                 	GLOBAL	_buddy_free
+   180 000001AA                                 _buddy_free:
+   181 000001AA 55                              	PUSH	EBP
+   182 000001AB 89 E5                           	MOV	EBP,ESP
+   183 000001AD 53                              	PUSH	EBX
+   184 000001AE 8B 4D 10                        	MOV	ECX,DWORD [16+EBP]
+   185 000001B1 8B 5D 08                        	MOV	EBX,DWORD [8+EBP]
+   186 000001B4 8B 45 0C                        	MOV	EAX,DWORD [12+EBP]
+   187 000001B7 8B 94 8B 00007FF0               	MOV	EDX,DWORD [32752+EBX+ECX*4]
+   188 000001BE 89 50 08                        	MOV	DWORD [8+EAX],EDX
+   189 000001C1 89 00                           	MOV	DWORD [EAX],EAX
+   190 000001C3 89 48 04                        	MOV	DWORD [4+EAX],ECX
+   191 000001C6 89 84 8B 00007FF0               	MOV	DWORD [32752+EBX+ECX*4],EAX
+   192 000001CD 5B                              	POP	EBX
+   193 000001CE 5D                              	POP	EBP
+   194 000001CF C3                              	RET
+   195 000001D0                                 	GLOBAL	_bestfit_alloc
+   196 000001D0                                 _bestfit_alloc:
+   197 000001D0 55                              	PUSH	EBP
+   198 000001D1 31 C9                           	XOR	ECX,ECX
+   199 000001D3 89 E5                           	MOV	EBP,ESP
+   200 000001D5 83 CA FF                        	OR	EDX,-1
+   201 000001D8 57                              	PUSH	EDI
+   202 000001D9 56                              	PUSH	ESI
+   203 000001DA 53                              	PUSH	EBX
+   204 000001DB 56                              	PUSH	ESI
+   205 000001DC 56                              	PUSH	ESI
+   206 000001DD 8B 5D 08                        	MOV	EBX,DWORD [8+EBP]
+   207 000001E0 8B 7D 0C                        	MOV	EDI,DWORD [12+EBP]
+   208 000001E3 C7 45 EC FFFFFFFF               	MOV	DWORD [-20+EBP],-1
+   209 000001EA 8B 33                           	MOV	ESI,DWORD [EBX]
+   210 000001EC 39 F1                           	CMP	ECX,ESI
+   211 000001EE 73 17                           	JAE	L62
+   212 000001F0                                 L53:
+   213 000001F0 8B 44 CB 14                     	MOV	EAX,DWORD [20+EBX+ECX*8]
+   214 000001F4 39 F8                           	CMP	EAX,EDI
+   215 000001F6 72 0A                           	JB	L50
+   216 000001F8 3B 45 EC                        	CMP	EAX,DWORD [-20+EBP]
+   217 000001FB 73 05                           	JAE	L50
+   218 000001FD 89 CA                           	MOV	EDX,ECX
+   219 000001FF 89 45 EC                        	MOV	DWORD [-20+EBP],EAX
+   220 00000202                                 L50:
+   221 00000202 41                              	INC	ECX
+   222 00000203 39 F1                           	CMP	ECX,ESI
+   223 00000205 72 E9                           	JB	L53
+   224 00000207                                 L62:
+   225 00000207 31 C0                           	XOR	EAX,EAX
+   226 00000209 83 FA FF                        	CMP	EDX,-1
+   227 0000020C 74 40                           	JE	L47
+   228 0000020E 8B 44 D3 10                     	MOV	EAX,DWORD [16+EBX+EDX*8]
+   229 00000212 89 45 F0                        	MOV	DWORD [-16+EBP],EAX
+   230 00000215 01 F8                           	ADD	EAX,EDI
+   231 00000217 89 44 D3 10                     	MOV	DWORD [16+EBX+EDX*8],EAX
+   232 0000021B 8B 44 D3 14                     	MOV	EAX,DWORD [20+EBX+EDX*8]
+   233 0000021F 29 F8                           	SUB	EAX,EDI
+   234 00000221 89 44 D3 14                     	MOV	DWORD [20+EBX+EDX*8],EAX
+   235 00000225 85 C0                           	TEST	EAX,EAX
+   236 00000227 75 22                           	JNE	L55
+   237 00000229 8B 03                           	MOV	EAX,DWORD [EBX]
+   238 0000022B 89 D1                           	MOV	ECX,EDX
+   239 0000022D 48                              	DEC	EAX
+   240 0000022E 89 03                           	MOV	DWORD [EBX],EAX
+   241 00000230 39 C2                           	CMP	EDX,EAX
+   242 00000232 73 17                           	JAE	L55
+   243 00000234 89 C6                           	MOV	ESI,EAX
+   244 00000236                                 L60:
+   245 00000236 8B 44 CB 18                     	MOV	EAX,DWORD [24+EBX+ECX*8]
+   246 0000023A 8B 54 CB 1C                     	MOV	EDX,DWORD [28+EBX+ECX*8]
+   247 0000023E 89 44 CB 10                     	MOV	DWORD [16+EBX+ECX*8],EAX
+   248 00000242 89 54 CB 14                     	MOV	DWORD [20+EBX+ECX*8],EDX
+   249 00000246 41                              	INC	ECX
+   250 00000247 39 F1                           	CMP	ECX,ESI
+   251 00000249 72 EB                           	JB	L60
+   252 0000024B                                 L55:
+   253 0000024B 8B 45 F0                        	MOV	EAX,DWORD [-16+EBP]
+   254 0000024E                                 L47:
+   255 0000024E 59                              	POP	ECX
+   256 0000024F 5B                              	POP	EBX
+   257 00000250 5B                              	POP	EBX
+   258 00000251 5E                              	POP	ESI
+   259 00000252 5F                              	POP	EDI
+   260 00000253 5D                              	POP	EBP
+   261 00000254 C3                              	RET
+   262 00000255                                 	GLOBAL	_memman_total
+   263 00000255                                 _memman_total:
+   264 00000255 55                              	PUSH	EBP
+   265 00000256 31 C0                           	XOR	EAX,EAX
+   266 00000258 89 E5                           	MOV	EBP,ESP
+   267 0000025A 31 D2                           	XOR	EDX,EDX
+   268 0000025C 53                              	PUSH	EBX
+   269 0000025D 8B 5D 08                        	MOV	EBX,DWORD [8+EBP]
+   270 00000260 8B 0B                           	MOV	ECX,DWORD [EBX]
+   271 00000262 39 C8                           	CMP	EAX,ECX
+   272 00000264 73 09                           	JAE	L71
+   273 00000266                                 L69:
+   274 00000266 03 44 D3 14                     	ADD	EAX,DWORD [20+EBX+EDX*8]
+   275 0000026A 42                              	INC	EDX
+   276 0000026B 39 CA                           	CMP	EDX,ECX
+   277 0000026D 72 F7                           	JB	L69
+   278 0000026F                                 L71:
+   279 0000026F 5B                              	POP	EBX
+   280 00000270 5D                              	POP	EBP
+   281 00000271 C3                              	RET
+   282 00000272                                 	GLOBAL	_memman_alloc
+   283 00000272                                 _memman_alloc:
+   284 00000272 55                              	PUSH	EBP
+   285 00000273 89 E5                           	MOV	EBP,ESP
+   286 00000275 57                              	PUSH	EDI
+   287 00000276 56                              	PUSH	ESI
+   288 00000277 53                              	PUSH	EBX
+   289 00000278 8B 5D 08                        	MOV	EBX,DWORD [8+EBP]
+   290 0000027B 8B 55 0C                        	MOV	EDX,DWORD [12+EBP]
+   291 0000027E 8B 83 00028028                  	MOV	EAX,DWORD [163880+EBX]
+   292 00000284 83 F8 01                        	CMP	EAX,1
+   293 00000287 74 7D                           	JE	L74
+   294 00000289 83 F8 01                        	CMP	EAX,1
+   295 0000028C 72 05                           	JB	L77
+   296 0000028E 83 F8 02                        	CMP	EAX,2
+   297 00000291 74 5A                           	JE	L75
+   298 00000293                                 L77:
+   299 00000293 31 C9                           	XOR	ECX,ECX
+   300 00000295 8B 03                           	MOV	EAX,DWORD [EBX]
+   301 00000297 39 C1                           	CMP	ECX,EAX
+   302 00000299 73 0D                           	JAE	L92
+   303 0000029B                                 L89:
+   304 0000029B 8B 74 CB 14                     	MOV	ESI,DWORD [20+EBX+ECX*8]
+   305 0000029F 39 D6                           	CMP	ESI,EDX
+   306 000002A1 73 0F                           	JAE	L94
+   307 000002A3 41                              	INC	ECX
+   308 000002A4 39 C1                           	CMP	ECX,EAX
+   309 000002A6 72 F3                           	JB	L89
+   310 000002A8                                 L92:
+   311 000002A8 31 C0                           	XOR	EAX,EAX
+   312 000002AA                                 L72:
+   313 000002AA 8D 65 F4                        	LEA	ESP,DWORD [-12+EBP]
+   314 000002AD 5B                              	POP	EBX
+   315 000002AE 5E                              	POP	ESI
+   316 000002AF 5F                              	POP	EDI
+   317 000002B0 5D                              	POP	EBP
+   318 000002B1 C3                              	RET
+   319 000002B2                                 L94:
+   320 000002B2 8B 7C CB 10                     	MOV	EDI,DWORD [16+EBX+ECX*8]
+   321 000002B6 8D 04 3A                        	LEA	EAX,DWORD [EDX+EDI*1]
+   322 000002B9 89 44 CB 10                     	MOV	DWORD [16+EBX+ECX*8],EAX
+   323 000002BD 89 F0                           	MOV	EAX,ESI
+   324 000002BF 29 D0                           	SUB	EAX,EDX
+   325 000002C1 89 44 CB 14                     	MOV	DWORD [20+EBX+ECX*8],EAX
+   326 000002C5 85 C0                           	TEST	EAX,EAX
+   327 000002C7 75 20                           	JNE	L83
+   328 000002C9 8B 03                           	MOV	EAX,DWORD [EBX]
+   329 000002CB 48                              	DEC	EAX
+   330 000002CC 89 03                           	MOV	DWORD [EBX],EAX
+   331 000002CE 39 C1                           	CMP	ECX,EAX
+   332 000002D0 73 17                           	JAE	L83
+   333 000002D2 89 C6                           	MOV	ESI,EAX
+   334 000002D4                                 L88:
+   335 000002D4 8B 44 CB 18                     	MOV	EAX,DWORD [24+EBX+ECX*8]
+   336 000002D8 8B 54 CB 1C                     	MOV	EDX,DWORD [28+EBX+ECX*8]
+   337 000002DC 89 44 CB 10                     	MOV	DWORD [16+EBX+ECX*8],EAX
+   338 000002E0 89 54 CB 14                     	MOV	DWORD [20+EBX+ECX*8],EDX
+   339 000002E4 41                              	INC	ECX
+   340 000002E5 39 F1                           	CMP	ECX,ESI
+   341 000002E7 72 EB                           	JB	L88
+   342 000002E9                                 L83:
+   343 000002E9 89 F8                           	MOV	EAX,EDI
+   344 000002EB EB BD                           	JMP	L72
+   345 000002ED                                 L75:
+   346 000002ED 52                              	PUSH	EDX
+   347 000002EE E8 FFFFFE2E                     	CALL	_buddy_get_order
+   348 000002F3 5F                              	POP	EDI
+   349 000002F4 89 5D 08                        	MOV	DWORD [8+EBP],EBX
+   350 000002F7 89 45 0C                        	MOV	DWORD [12+EBP],EAX
+   351 000002FA 8D 65 F4                        	LEA	ESP,DWORD [-12+EBP]
+   352 000002FD 5B                              	POP	EBX
+   353 000002FE 5E                              	POP	ESI
+   354 000002FF 5F                              	POP	EDI
+   355 00000300 5D                              	POP	EBP
+   356 00000301 E9 FFFFFE41                     	JMP	_buddy_alloc
+   357 00000306                                 L74:
+   358 00000306 89 55 0C                        	MOV	DWORD [12+EBP],EDX
+   359 00000309 89 5D 08                        	MOV	DWORD [8+EBP],EBX
+   360 0000030C 8D 65 F4                        	LEA	ESP,DWORD [-12+EBP]
+   361 0000030F 5B                              	POP	EBX
+   362 00000310 5E                              	POP	ESI
+   363 00000311 5F                              	POP	EDI
+   364 00000312 5D                              	POP	EBP
+   365 00000313 E9 FFFFFEB8                     	JMP	_bestfit_alloc
+   366 00000318                                 	GLOBAL	_memman_free
+   367 00000318                                 _memman_free:
+   368 00000318 55                              	PUSH	EBP
+   369 00000319 89 E5                           	MOV	EBP,ESP
+   370 0000031B 57                              	PUSH	EDI
+   371 0000031C 56                              	PUSH	ESI
+   372 0000031D 8B 75 08                        	MOV	ESI,DWORD [8+EBP]
+   373 00000320 53                              	PUSH	EBX
+   374 00000321 83 BE 00028028 02               	CMP	DWORD [163880+ESI],2
+   375 00000328 0F 84 000000E0                  	JE	L126
+   376 0000032E 31 DB                           	XOR	EBX,EBX
+   377 00000330 8B 3E                           	MOV	EDI,DWORD [ESI]
+   378 00000332 39 FB                           	CMP	EBX,EDI
+   379 00000334 7D 0E                           	JGE	L98
+   380 00000336                                 L102:
+   381 00000336 8B 45 0C                        	MOV	EAX,DWORD [12+EBP]
+   382 00000339 39 44 DE 10                     	CMP	DWORD [16+ESI+EBX*8],EAX
+   383 0000033D 77 05                           	JA	L98
+   384 0000033F 43                              	INC	EBX
+   385 00000340 39 FB                           	CMP	EBX,EDI
+   386 00000342 7C F2                           	JL	L102
+   387 00000344                                 L98:
+   388 00000344 85 DB                           	TEST	EBX,EBX
+   389 00000346 7E 0F                           	JLE	L103
+   390 00000348 8B 54 DE 0C                     	MOV	EDX,DWORD [12+ESI+EBX*8]
+   391 0000034C 8B 44 DE 08                     	MOV	EAX,DWORD [8+ESI+EBX*8]
+   392 00000350 01 D0                           	ADD	EAX,EDX
+   393 00000352 3B 45 0C                        	CMP	EAX,DWORD [12+EBP]
+   394 00000355 74 76                           	JE	L127
+   395 00000357                                 L103:
+   396 00000357 39 FB                           	CMP	EBX,EDI
+   397 00000359 7D 0C                           	JGE	L112
+   398 0000035B 8B 45 0C                        	MOV	EAX,DWORD [12+EBP]
+   399 0000035E 03 45 10                        	ADD	EAX,DWORD [16+EBP]
+   400 00000361 3B 44 DE 10                     	CMP	EAX,DWORD [16+ESI+EBX*8]
+   401 00000365 74 56                           	JE	L128
+   402 00000367                                 L112:
+   403 00000367 81 FF 00000FF9                  	CMP	EDI,4089
+   404 0000036D 7F 40                           	JG	L114
+   405 0000036F 89 F9                           	MOV	ECX,EDI
+   406 00000371 39 DF                           	CMP	EDI,EBX
+   407 00000373 7E 15                           	JLE	L124
+   408 00000375                                 L119:
+   409 00000375 8B 44 CE 08                     	MOV	EAX,DWORD [8+ESI+ECX*8]
+   410 00000379 8B 54 CE 0C                     	MOV	EDX,DWORD [12+ESI+ECX*8]
+   411 0000037D 89 44 CE 10                     	MOV	DWORD [16+ESI+ECX*8],EAX
+   412 00000381 89 54 CE 14                     	MOV	DWORD [20+ESI+ECX*8],EDX
+   413 00000385 49                              	DEC	ECX
+   414 00000386 39 D9                           	CMP	ECX,EBX
+   415 00000388 7F EB                           	JG	L119
+   416 0000038A                                 L124:
+   417 0000038A 8D 47 01                        	LEA	EAX,DWORD [1+EDI]
+   418 0000038D 89 06                           	MOV	DWORD [ESI],EAX
+   419 0000038F 39 46 04                        	CMP	DWORD [4+ESI],EAX
+   420 00000392 7D 03                           	JGE	L120
+   421 00000394 89 46 04                        	MOV	DWORD [4+ESI],EAX
+   422 00000397                                 L120:
+   423 00000397 8B 45 0C                        	MOV	EAX,DWORD [12+EBP]
+   424 0000039A 89 44 DE 10                     	MOV	DWORD [16+ESI+EBX*8],EAX
+   425 0000039E 8B 45 10                        	MOV	EAX,DWORD [16+EBP]
+   426 000003A1 89 44 DE 14                     	MOV	DWORD [20+ESI+EBX*8],EAX
+   427 000003A5                                 L125:
+   428 000003A5 31 C0                           	XOR	EAX,EAX
+   429 000003A7                                 L95:
+   430 000003A7 8D 65 F4                        	LEA	ESP,DWORD [-12+EBP]
+   431 000003AA 5B                              	POP	EBX
+   432 000003AB 5E                              	POP	ESI
+   433 000003AC 5F                              	POP	EDI
+   434 000003AD 5D                              	POP	EBP
+   435 000003AE C3                              	RET
+   436 000003AF                                 L114:
+   437 000003AF 8B 45 10                        	MOV	EAX,DWORD [16+EBP]
+   438 000003B2 FF 46 0C                        	INC	DWORD [12+ESI]
+   439 000003B5 01 46 08                        	ADD	DWORD [8+ESI],EAX
+   440 000003B8 83 C8 FF                        	OR	EAX,-1
+   441 000003BB EB EA                           	JMP	L95
+   442 000003BD                                 L128:
+   443 000003BD 8B 45 0C                        	MOV	EAX,DWORD [12+EBP]
+   444 000003C0 89 44 DE 10                     	MOV	DWORD [16+ESI+EBX*8],EAX
+   445 000003C4 8B 45 10                        	MOV	EAX,DWORD [16+EBP]
+   446 000003C7 01 44 DE 14                     	ADD	DWORD [20+ESI+EBX*8],EAX
+   447 000003CB EB D8                           	JMP	L125
+   448 000003CD                                 L127:
+   449 000003CD 03 55 10                        	ADD	EDX,DWORD [16+EBP]
+   450 000003D0 89 54 DE 0C                     	MOV	DWORD [12+ESI+EBX*8],EDX
+   451 000003D4 3B 1E                           	CMP	EBX,DWORD [ESI]
+   452 000003D6 7D CD                           	JGE	L125
+   453 000003D8 8B 45 0C                        	MOV	EAX,DWORD [12+EBP]
+   454 000003DB 03 45 10                        	ADD	EAX,DWORD [16+EBP]
+   455 000003DE 3B 44 DE 10                     	CMP	EAX,DWORD [16+ESI+EBX*8]
+   456 000003E2 75 C1                           	JNE	L125
+   457 000003E4 03 54 DE 14                     	ADD	EDX,DWORD [20+ESI+EBX*8]
+   458 000003E8 89 54 DE 0C                     	MOV	DWORD [12+ESI+EBX*8],EDX
+   459 000003EC 8B 06                           	MOV	EAX,DWORD [ESI]
+   460 000003EE 48                              	DEC	EAX
+   461 000003EF 89 06                           	MOV	DWORD [ESI],EAX
+   462 000003F1 39 C3                           	CMP	EBX,EAX
+   463 000003F3 7D B0                           	JGE	L125
+   464 000003F5 89 C1                           	MOV	ECX,EAX
+   465 000003F7                                 L111:
+   466 000003F7 8B 44 DE 18                     	MOV	EAX,DWORD [24+ESI+EBX*8]
+   467 000003FB 8B 54 DE 1C                     	MOV	EDX,DWORD [28+ESI+EBX*8]
+   468 000003FF 89 44 DE 10                     	MOV	DWORD [16+ESI+EBX*8],EAX
+   469 00000403 89 54 DE 14                     	MOV	DWORD [20+ESI+EBX*8],EDX
+   470 00000407 43                              	INC	EBX
+   471 00000408 39 CB                           	CMP	EBX,ECX
+   472 0000040A 7C EB                           	JL	L111
+   473 0000040C EB 97                           	JMP	L125
+   474 0000040E                                 L126:
+   475 0000040E FF 75 10                        	PUSH	DWORD [16+EBP]
+   476 00000411 E8 FFFFFD0B                     	CALL	_buddy_get_order
+   477 00000416 50                              	PUSH	EAX
+   478 00000417 FF 75 0C                        	PUSH	DWORD [12+EBP]
+   479 0000041A 56                              	PUSH	ESI
+   480 0000041B E8 FFFFFD8A                     	CALL	_buddy_free
+   481 00000420 EB 83                           	JMP	L125
+   482 00000422                                 	GLOBAL	_memman_alloc_4k
+   483 00000422                                 _memman_alloc_4k:
+   484 00000422 55                              	PUSH	EBP
+   485 00000423 89 E5                           	MOV	EBP,ESP
+   486 00000425 8B 45 0C                        	MOV	EAX,DWORD [12+EBP]
+   487 00000428 05 00000FFF                     	ADD	EAX,4095
+   488 0000042D 25 FFFFF000                     	AND	EAX,-4096
+   489 00000432 89 45 0C                        	MOV	DWORD [12+EBP],EAX
+   490 00000435 5D                              	POP	EBP
+   491 00000436 E9 FFFFFE37                     	JMP	_memman_alloc
+   492 0000043B                                 	GLOBAL	_memman_free_4k
+   493 0000043B                                 _memman_free_4k:
+   494 0000043B 55                              	PUSH	EBP
+   495 0000043C 89 E5                           	MOV	EBP,ESP
+   496 0000043E 8B 45 10                        	MOV	EAX,DWORD [16+EBP]
+   497 00000441 05 00000FFF                     	ADD	EAX,4095
+   498 00000446 25 FFFFF000                     	AND	EAX,-4096
+   499 0000044B 89 45 10                        	MOV	DWORD [16+EBP],EAX
+   500 0000044E 5D                              	POP	EBP
+   501 0000044F E9 FFFFFEC4                     	JMP	_memman_free
+   502 00000454                                 	GLOBAL	_page_init
+   503 00000454                                 _page_init:
+   504 00000454 55                              	PUSH	EBP
+   505 00000455 89 E5                           	MOV	EBP,ESP
+   506 00000457 8B 45 10                        	MOV	EAX,DWORD [16+EBP]
+   507 0000045A 8B 55 08                        	MOV	EDX,DWORD [8+EBP]
+   508 0000045D 2B 45 0C                        	SUB	EAX,DWORD [12+EBP]
+   509 00000460 C1 E8 0C                        	SHR	EAX,12
+   510 00000463 89 82 00007FE4                  	MOV	DWORD [32740+EDX],EAX
+   511 00000469 89 82 00007FE8                  	MOV	DWORD [32744+EDX],EAX
+   512 0000046F 5D                              	POP	EBP
+   513 00000470 C3                              	RET
+   514 00000471                                 	GLOBAL	_page_alloc
+   515 00000471                                 _page_alloc:
+   516 00000471 55                              	PUSH	EBP
+   517 00000472 31 C0                           	XOR	EAX,EAX
+   518 00000474 89 E5                           	MOV	EBP,ESP
+   519 00000476 8B 4D 08                        	MOV	ECX,DWORD [8+EBP]
+   520 00000479 8B 91 00007FEC                  	MOV	EDX,DWORD [32748+ECX]
+   521 0000047F 85 D2                           	TEST	EDX,EDX
+   522 00000481 74 1F                           	JE	L132
+   523 00000483 8B 42 10                        	MOV	EAX,DWORD [16+EDX]
+   524 00000486 C7 42 0C 00000001               	MOV	DWORD [12+EDX],1
+   525 0000048D 89 81 00007FEC                  	MOV	DWORD [32748+ECX],EAX
+   526 00000493 FF 89 00007FE8                  	DEC	DWORD [32744+ECX]
+   527 00000499 C7 42 08 00000001               	MOV	DWORD [8+EDX],1
+   528 000004A0 89 D0                           	MOV	EAX,EDX
+   529 000004A2                                 L132:
+   530 000004A2 5D                              	POP	EBP
+   531 000004A3 C3                              	RET
+   532 000004A4                                 	GLOBAL	_page_free
+   533 000004A4                                 _page_free:
+   534 000004A4 55                              	PUSH	EBP
+   535 000004A5 89 E5                           	MOV	EBP,ESP
+   536 000004A7 8B 55 0C                        	MOV	EDX,DWORD [12+EBP]
+   537 000004AA 8B 4D 08                        	MOV	ECX,DWORD [8+EBP]
+   538 000004AD 8B 42 0C                        	MOV	EAX,DWORD [12+EDX]
+   539 000004B0 83 F8 01                        	CMP	EAX,1
+   540 000004B3 7E 06                           	JLE	L135
+   541 000004B5 48                              	DEC	EAX
+   542 000004B6 89 42 0C                        	MOV	DWORD [12+EDX],EAX
+   543 000004B9                                 L134:
+   544 000004B9 5D                              	POP	EBP
+   545 000004BA C3                              	RET
+   546 000004BB                                 L135:
+   547 000004BB 8B 81 00007FEC                  	MOV	EAX,DWORD [32748+ECX]
+   548 000004C1 C7 42 0C 00000000               	MOV	DWORD [12+EDX],0
+   549 000004C8 89 42 10                        	MOV	DWORD [16+EDX],EAX
+   550 000004CB FF 81 00007FE8                  	INC	DWORD [32744+ECX]
+   551 000004D1 C7 42 08 00000000               	MOV	DWORD [8+EDX],0
+   552 000004D8 89 91 00007FEC                  	MOV	DWORD [32748+ECX],EDX
+   553 000004DE EB D9                           	JMP	L134
+   554 000004E0                                 	GLOBAL	_vmem_init
+   555 000004E0                                 _vmem_init:
+   556 000004E0 55                              	PUSH	EBP
+   557 000004E1 89 E5                           	MOV	EBP,ESP
+   558 000004E3 53                              	PUSH	EBX
+   559 000004E4 68 00001000                     	PUSH	4096
+   560 000004E9 8B 5D 08                        	MOV	EBX,DWORD [8+EBP]
+   561 000004EC 53                              	PUSH	EBX
+   562 000004ED E8 FFFFFF30                     	CALL	_memman_alloc_4k
+   563 000004F2 85 C0                           	TEST	EAX,EAX
+   564 000004F4 89 83 00028020                  	MOV	DWORD [163872+EBX],EAX
+   565 000004FA 5A                              	POP	EDX
+   566 000004FB 59                              	POP	ECX
+   567 000004FC 74 1C                           	JE	L136
+   568 000004FE 31 D2                           	XOR	EDX,EDX
+   569 00000500                                 L142:
+   570 00000500 C7 04 90 00000000               	MOV	DWORD [EAX+EDX*4],0
+   571 00000507 42                              	INC	EDX
+   572 00000508 81 FA 000003FF                  	CMP	EDX,1023
+   573 0000050E 7E F0                           	JLE	L142
+   574 00000510 C7 83 00028024 80000000         	MOV	DWORD [163876+EBX],-2147483648
+   575 0000051A                                 L136:
+   576 0000051A 8B 5D FC                        	MOV	EBX,DWORD [-4+EBP]
+   577 0000051D C9                              	LEAVE
+   578 0000051E C3                              	RET
+   579 0000051F                                 	GLOBAL	_vmem_alloc
+   580 0000051F                                 _vmem_alloc:
+   581 0000051F 55                              	PUSH	EBP
+   582 00000520 89 E5                           	MOV	EBP,ESP
+   583 00000522 57                              	PUSH	EDI
+   584 00000523 56                              	PUSH	ESI
+   585 00000524 53                              	PUSH	EBX
+   586 00000525 51                              	PUSH	ECX
+   587 00000526 51                              	PUSH	ECX
+   588 00000527 8B 45 08                        	MOV	EAX,DWORD [8+EBP]
+   589 0000052A 8B 7D 0C                        	MOV	EDI,DWORD [12+EBP]
+   590 0000052D 81 C7 00000FFF                  	ADD	EDI,4095
+   591 00000533 C1 EF 0C                        	SHR	EDI,12
+   592 00000536 8B 80 00028024                  	MOV	EAX,DWORD [163876+EAX]
+   593 0000053C C7 45 EC 00000000               	MOV	DWORD [-20+EBP],0
+   594 00000543 89 45 F0                        	MOV	DWORD [-16+EBP],EAX
+   595 00000546 39 7D EC                        	CMP	DWORD [-20+EBP],EDI
+   596 00000549 73 38                           	JAE	L154
+   597 0000054B 89 C6                           	MOV	ESI,EAX
+   598 0000054D                                 L152:
+   599 0000054D 68 00001000                     	PUSH	4096
+   600 00000552 FF 75 08                        	PUSH	DWORD [8+EBP]
+   601 00000555 E8 FFFFFEC8                     	CALL	_memman_alloc_4k
+   602 0000055A 89 C3                           	MOV	EBX,EAX
+   603 0000055C 58                              	POP	EAX
+   604 0000055D 5A                              	POP	EDX
+   605 0000055E 31 C0                           	XOR	EAX,EAX
+   606 00000560 85 DB                           	TEST	EBX,EBX
+   607 00000562 74 30                           	JE	L145
+   608 00000564 53                              	PUSH	EBX
+   609 00000565 56                              	PUSH	ESI
+   610 00000566 FF 75 08                        	PUSH	DWORD [8+EBP]
+   611 00000569 E8 00000040                     	CALL	_vmem_map
+   612 0000056E 83 C4 0C                        	ADD	ESP,12
+   613 00000571 85 C0                           	TEST	EAX,EAX
+   614 00000573 75 27                           	JNE	L155
+   615 00000575 FF 45 EC                        	INC	DWORD [-20+EBP]
+   616 00000578 81 C6 00001000                  	ADD	ESI,4096
+   617 0000057E 39 7D EC                        	CMP	DWORD [-20+EBP],EDI
+   618 00000581 72 CA                           	JB	L152
+   619 00000583                                 L154:
+   620 00000583 89 F8                           	MOV	EAX,EDI
+   621 00000585 8B 55 08                        	MOV	EDX,DWORD [8+EBP]
+   622 00000588 C1 E0 0C                        	SAL	EAX,12
+   623 0000058B 01 82 00028024                  	ADD	DWORD [163876+EDX],EAX
+   624 00000591 8B 45 F0                        	MOV	EAX,DWORD [-16+EBP]
+   625 00000594                                 L145:
+   626 00000594 8D 65 F4                        	LEA	ESP,DWORD [-12+EBP]
+   627 00000597 5B                              	POP	EBX
+   628 00000598 5E                              	POP	ESI
+   629 00000599 5F                              	POP	EDI
+   630 0000059A 5D                              	POP	EBP
+   631 0000059B C3                              	RET
+   632 0000059C                                 L155:
+   633 0000059C 68 00001000                     	PUSH	4096
+   634 000005A1 53                              	PUSH	EBX
+   635 000005A2 FF 75 08                        	PUSH	DWORD [8+EBP]
+   636 000005A5 E8 FFFFFE91                     	CALL	_memman_free_4k
+   637 000005AA 31 C0                           	XOR	EAX,EAX
+   638 000005AC EB E6                           	JMP	L145
+   639 000005AE                                 	GLOBAL	_vmem_map
+   640 000005AE                                 _vmem_map:
+   641 000005AE 55                              	PUSH	EBP
+   642 000005AF 31 C0                           	XOR	EAX,EAX
+   643 000005B1 89 E5                           	MOV	EBP,ESP
+   644 000005B3 5D                              	POP	EBP
+   645 000005B4 C3                              	RET
+   646 000005B5                                 	GLOBAL	_vmem_free
+   647 000005B5                                 _vmem_free:
+   648 000005B5 55                              	PUSH	EBP
+   649 000005B6 89 E5                           	MOV	EBP,ESP
+   650 000005B8 57                              	PUSH	EDI
+   651 000005B9 56                              	PUSH	ESI
+   652 000005BA 31 FF                           	XOR	EDI,EDI
+   653 000005BC 8B 75 10                        	MOV	ESI,DWORD [16+EBP]
+   654 000005BF 53                              	PUSH	EBX
+   655 000005C0 81 C6 00000FFF                  	ADD	ESI,4095
+   656 000005C6 C1 EE 0C                        	SHR	ESI,12
+   657 000005C9 39 F7                           	CMP	EDI,ESI
+   658 000005CB 73 19                           	JAE	L164
+   659 000005CD 8B 5D 0C                        	MOV	EBX,DWORD [12+EBP]
+   660 000005D0                                 L162:
+   661 000005D0 53                              	PUSH	EBX
+   662 000005D1 47                              	INC	EDI
+   663 000005D2 FF 75 08                        	PUSH	DWORD [8+EBP]
+   664 000005D5 81 C3 00001000                  	ADD	EBX,4096
+   665 000005DB E8 0000000E                     	CALL	_vmem_unmap
+   666 000005E0 58                              	POP	EAX
+   667 000005E1 39 F7                           	CMP	EDI,ESI
+   668 000005E3 5A                              	POP	EDX
+   669 000005E4 72 EA                           	JB	L162
+   670 000005E6                                 L164:
+   671 000005E6 8D 65 F4                        	LEA	ESP,DWORD [-12+EBP]
+   672 000005E9 5B                              	POP	EBX
+   673 000005EA 5E                              	POP	ESI
+   674 000005EB 5F                              	POP	EDI
+   675 000005EC 5D                              	POP	EBP
+   676 000005ED C3                              	RET
+   677 000005EE                                 	GLOBAL	_vmem_unmap
+   678 000005EE                                 _vmem_unmap:
+   679 000005EE 55                              	PUSH	EBP
+   680 000005EF 89 E5                           	MOV	EBP,ESP
+   681 000005F1 5D                              	POP	EBP
+   682 000005F2 C3                              	RET
+   683 000005F3                                 	GLOBAL	_buddy_init
+   684 000005F3                                 _buddy_init:
+   685 000005F3 55                              	PUSH	EBP
+   686 000005F4 89 E5                           	MOV	EBP,ESP
+   687 000005F6 5D                              	POP	EBP
+   688 000005F7 C3                              	RET
