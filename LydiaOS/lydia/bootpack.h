@@ -162,6 +162,9 @@ int mouse_decode(struct MOUSE_DEC *mdec, unsigned char dat);
 #define MAX_PAGES			0x100000	/* 最大页面数 (4GB / 4KB) */
 #define BUDDY_MAX_ORDER		10			/* 伙伴系统最大阶数 (2^10 = 1024页) */
 #define VIRT_BASE			0x80000000	/* 虚拟内存起始地址 */
+// 固定伙伴系统管理区间4MB~32MB
+#define MEM_BUDDY_START   0x00400000  /* 4MB，通常内核和BIOS保留区之后 */
+#define MEM_BUDDY_END     0x02000000  /* 32MB，实际可用物理内存末尾 */
 
 /* 内存分配策略 */
 typedef enum {

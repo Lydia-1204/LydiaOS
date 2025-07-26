@@ -76,6 +76,8 @@ void HariMain(void)
     /* 添加可用内存区域 */
     memman_free(memman, 0x00001000, 0x0009e000); /* 0x00001000 - 0x0009efff */
     memman_free(memman, 0x00400000, memtotal - 0x00400000);
+    /* 初始化伙伴系统，固定区间4MB~32MB */
+    buddy_init(memman);
 
     /* ===== 内存管理功能测试 ===== */
     sprintf(s, "Total Memory: %dMB", memtotal / (1024 * 1024));
